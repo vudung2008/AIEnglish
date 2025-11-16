@@ -1,50 +1,51 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
     getCollections,
     addFlashcardsToCollection,
-    type Collection
+    type Collection,
+    type Flashcard
 } from '../lib/collectionHelper';
 import { getContextAndSave } from '../lib/apiClient';
 import ReactMarkdown from 'react-markdown';
 
 const Learn = () => {
-    const [collections, setCollections] = useState(getCollections());
+    const [collections, setCollections] = useState<Collection[]>(getCollections());
     const [selectedCollection, setSelectedCollection] = useState<Collection | null>(collections[0] || null);
-
-    const [wordsInput, setWordsInput] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // ❌ remove flashcards state completely
-    const flashcards = selectedCollection?.flashcards || [];
+    const wordsInputRef = useRef<HTMLInputElement>(null);
+
+    const flashcards: Flashcard[] = selectedCollection?.flashcards || [];
 
     const handleGenerate = async () => {
         if (loading) return;
-        if (!wordsInput.trim()) return alert("Nhập từ vựng muốn học");
+        const input = wordsInputRef.current?.value.trim();
+        if (!input) return alert("Nhập từ vựng muốn học");
 
         setLoading(true);
 
         try {
-            const words = wordsInput
+            const words = input
                 .split(',')
                 .map(w => w.trim())
                 .filter(Boolean);
 
-            const newCards = await getContextAndSave(words);
+            const newCards: Flashcard[] = await getContextAndSave(words);
 
             if (selectedCollection) {
                 addFlashcardsToCollection(selectedCollection.id, newCards);
 
                 // Refresh collections from storage
-                const updatedCollections = getCollections();
+                const updatedCollections: Collection[] = getCollections();
                 setCollections(updatedCollections);
 
                 // Update selected collection reference
-                const updated = updatedCollections.find(c => c.id === selectedCollection.id) || null;
+                const updated: Collection | null = updatedCollections.find(c => c.id === selectedCollection.id) || null;
                 setSelectedCollection(updated);
             }
 
-            setWordsInput('');
+            if (wordsInputRef.current) wordsInputRef.current.value = '';
         } catch (err) {
             console.error(err);
             alert("Có lỗi xảy ra. Vui lòng thử lại.");
@@ -78,24 +79,26 @@ const Learn = () => {
             {/* Input từ mới */}
             <div className="flex flex-col md:flex-row gap-3">
                 <input
+                    ref={wordsInputRef}
                     className="flex-1 border border-gray-300 rounded-xl px-4 py-3 text-base"
                     placeholder="Nhập từ mới, cách nhau bằng dấu ,"
-                    value={wordsInput}
-                    onChange={e => setWordsInput(e.target.value)}
                 />
 
                 <button
                     disabled={loading}
                     className={`px-4 py-3 rounded-xl text-white text-base font-medium transition w-full md:w-auto
-                        ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"}
-                    `}
+                        ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"}`}
                     onClick={handleGenerate}
                 >
                     {loading ? "Đang tạo..." : "Tạo với AI"}
                 </button>
             </div>
 
-            {/* Notice */} <div className='text-center text-gray-400' > <p>Nên tạo với 10-15 từ để tránh quá tải và hết lượt request trong ngày!</p> <p>Nếu bạn thấy lượt request bất thường, hãy xóa api_key tại <a className='text-blue-500 text underline underline-offset-4' href="https://aistudio.google.com/api-keys" target="_blank"> AIStudioGoogle </a></p> </div>
+            {/* Notice */}
+            <div className='text-center text-gray-400'>
+                <p>Nên tạo với 10-15 từ để tránh quá tải và hết lượt request trong ngày!</p>
+                <p>Nếu bạn thấy lượt request bất thường, hãy xóa api_key tại <a className='text-blue-500 underline underline-offset-4' href="https://aistudio.google.com/api-keys" target="_blank"> AIStudioGoogle </a></p>
+            </div>
 
             {/* Flashcards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-10">
@@ -105,18 +108,11 @@ const Learn = () => {
                         className="p-4 border border-gray-200 rounded-xl shadow bg-white 
                                    hover:shadow-lg transition transform hover:-translate-y-1"
                     >
-                        <div className="text-xl font-bold text-blue-600 break-words">
-                            {card.key}
-                        </div>
-
-                        <div className="italic text-gray-500 text-sm mb-1">
-                            {card.pos} | {card.ipa}
-                        </div>
-
+                        <div className="text-xl font-bold text-blue-600 break-words">{card.key}</div>
+                        <div className="italic text-gray-500 text-sm mb-1">{card.pos} | {card.ipa}</div>
                         <p className="mt-2 text-gray-700 text-base leading-relaxed break-words">
                             <ReactMarkdown>{card.context}</ReactMarkdown>
                         </p>
-
                         <p className="mt-1 text-gray-500 italic text-sm break-words">
                             <ReactMarkdown>{card.transContext}</ReactMarkdown>
                         </p>
