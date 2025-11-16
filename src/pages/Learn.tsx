@@ -3,8 +3,7 @@ import { useState } from 'react';
 import {
     getCollections,
     addFlashcardsToCollection,
-    type Collection,
-    type Flashcard
+    type Collection
 } from '../lib/collectionHelper';
 import { getContextAndSave } from '../lib/apiClient';
 import ReactMarkdown from 'react-markdown';

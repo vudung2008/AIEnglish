@@ -1,31 +1,19 @@
-// pages/Flashcards.tsx
 import { useState, useEffect, useRef } from 'react';
 import { getCollections, type Collection, type Flashcard } from '../lib/collectionHelper';
 import ReactMarkdown from 'react-markdown';
 
-interface FlashcardsState {
-    cards: Flashcard[];
-    order: number[];
-    index: number;
-    flipped: boolean;
-    cardHeight: number | null;
-}
-
 const Flashcards = () => {
     const collections = getCollections();
     const [selectedCollection, setSelectedCollection] = useState<Collection | null>(collections[0] || null);
-    const [state, setState] = useState<FlashcardsState>({
-        cards: selectedCollection?.flashcards || [],
-        order: selectedCollection?.flashcards.map((_, i) => i) || [],
-        index: 0,
-        flipped: false,
-        cardHeight: null,
-    });
+    const [cards, setCards] = useState<Flashcard[]>(selectedCollection?.flashcards || []);
+    const [order, setOrder] = useState<number[]>([]);
+    const [index, setIndex] = useState(0);
+    const [flipped, setFlipped] = useState(false);
+    const [cardHeight, setCardHeight] = useState<number | null>(null);
 
     const frontRef = useRef<HTMLDivElement>(null);
     const backRef = useRef<HTMLDivElement>(null);
 
-    // Hàm shuffle
     const shuffle = (arr: number[]) => {
         const a = [...arr];
         for (let i = a.length - 1; i > 0; i--) {
@@ -35,43 +23,42 @@ const Flashcards = () => {
         return a;
     };
 
-    // Cập nhật khi đổi collection
     useEffect(() => {
-        if (!selectedCollection) return;
-        const list = selectedCollection.flashcards || [];
-        const newOrder = shuffle(list.map((_, i) => i));
-        setState({
-            cards: list,
-            order: newOrder,
-            index: 0,
-            flipped: false,
-            cardHeight: null,
-        });
+        if (selectedCollection) {
+            const list = selectedCollection.flashcards || [];
+            setCards(list);
+            if (list.length > 0) {
+                setOrder(shuffle(list.map((_, i) => i)));
+                setIndex(0);
+                setFlipped(false);
+            }
+        }
     }, [selectedCollection]);
 
-    // Tính max height mặt trước + sau
-    useEffect(() => {
-        if (!frontRef.current || !backRef.current) return;
-        const maxHeight = Math.max(frontRef.current.scrollHeight, backRef.current.scrollHeight);
-        if (state.cardHeight !== maxHeight) {
-            setState(prev => ({ ...prev, cardHeight: maxHeight }));
-        }
-    }, [state.cards, state.index]);
-
     const handleNext = () => {
-        if (state.index + 1 >= state.order.length) {
-            const newOrder = shuffle(state.order);
-            setState(prev => ({ ...prev, order: newOrder, index: 0, flipped: false }));
+        setFlipped(false);
+        if (index + 1 >= order.length) {
+            setOrder(shuffle(order));
+            setIndex(0);
         } else {
-            setState(prev => ({ ...prev, index: prev.index + 1, flipped: false }));
+            setIndex(prev => prev + 1);
         }
     };
 
-    if (!selectedCollection) return <div className="p-6">Chưa có collection nào.</div>;
-    if (state.cards.length === 0) return <div className="p-6">Collection này chưa có từ vựng.</div>;
-    if (state.order.length === 0 || state.order[state.index] === undefined) return <div className="p-6">Đang tải...</div>;
+    useEffect(() => {
+        // tính max height mặt trước + sau
+        if (frontRef.current && backRef.current) {
+            const maxHeight = Math.max(frontRef.current.scrollHeight, backRef.current.scrollHeight);
+            setCardHeight(maxHeight);
+        }
+    }, [cards, index]);
 
-    const card = state.cards[state.order[state.index]];
+    if (!selectedCollection) return <div className="p-6">Chưa có collection nào.</div>;
+    if (cards.length === 0) return <div className="p-6">Collection này chưa có từ vựng.</div>;
+    if (order.length === 0 || order[index] === undefined) return <div className="p-6">Đang tải...</div>;
+
+    const card = cards[order[index]];
+    if (!card) return <div className="p-6">Đang tải...</div>;
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-start p-4 bg-gray-50">
@@ -101,10 +88,11 @@ const Flashcards = () => {
 
             <div
                 className="w-full md:w-96 cursor-pointer perspective mt-6"
-                onClick={() => setState(prev => ({ ...prev, flipped: !prev.flipped }))}
-                style={{ height: state.cardHeight ? `${state.cardHeight}px` : 'auto' }}
+                onClick={() => setFlipped(!flipped)}
+                style={{ height: cardHeight ? `${cardHeight}px` : 'auto' }}
             >
-                <div className={`relative duration-500 transform-style-preserve-3d ${state.flipped ? 'rotate-y-180' : ''}`}>
+                <div className={`relative duration-500 transform-style-preserve-3d ${flipped ? 'rotate-y-180' : ''}`}>
+
                     {/* FRONT */}
                     <div
                         ref={frontRef}
