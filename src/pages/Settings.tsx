@@ -74,11 +74,6 @@ function ModelSelect() {
     );
 }
 
-interface FlashcardsPopupProps {
-    collection: Collection;
-    onClose: () => void;
-}
-
 const Settings = () => {
     // -----------------------
     // API Key State
