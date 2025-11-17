@@ -35,24 +35,43 @@ Each object must contain:
 - "question": the question text
 - "options": an array of 4 options including the correct answer
 - "correctAnswer": the index (0-3) of the correct answer in "options"
+- max 50 questions
 
 Return **strict JSON array** only. Do not include any markdown, code block, or text outside JSON.
 `.trim();
 
-
-    const res = await ai().models.generateContent({
-        contents: content,
-        model: 'gemini-2.5-flash', // có thể thay model khác
-    });
-
     try {
+        const res = await ai().models.generateContent({
+            contents: content,
+            model: localStorage.getItem('gemini:model') || '', // có thể thay model khác
+        });
+
         let text = res.text || '[]';
         // Loại bỏ ```json nếu AI trả về
         text = text.replace(/```json|```/g, '').trim();
         return JSON.parse(text) as QuizQuestion[];
-    } catch (err) {
-        console.error("AI response parse error:", err, res.text);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+        if (err.status == 503) {
+            alert('Vui lòng kiểm tra lại api_key hoặc thay đổi model AI!');
+        }
+        if (err.status == 429) {
+            alert('Request quá tải, vui lòng thử lại sau!');
+        }
+        if (err.status == 500) {
+            alert('Lỗi AI!');
+        }
+        if (err.status == 0) {
+            alert('Lỗi mạng!');
+        }
+        if (err.status == 404) {
+            alert('Model không khả dụng!');
+        }
+        if (err.status == 413 || err.status == 504) {
+            alert('Token quá lớn, vui lòng sử dụng token nhỏ hơn!');
+        }
         return [];
+
     }
 };
 
@@ -71,18 +90,36 @@ export const getContextAndSave = async (words: string[]): Promise<Flashcard[]> =
     };
     const content = `${JSON.stringify(pattern)}. Write a json array based on these words: [${words.join(",")}]. Each object must contain "key", "ipa" (international phonetic), "pos" (part of speech), "context" (easy sentence using the word), "transContext" (Vietnamese translation), "mean" (Vietnamese meaning). "Key" is in "context" and "transContext" marked down **. Return **strict JSON array** only.`;
 
-    const res = await ai().models.generateContent({
-        contents: content,
-        model: 'gemini-2.5-flash',
-    });
-
     try {
+        const res = await ai().models.generateContent({
+            contents: content,
+            model: localStorage.getItem('gemini:model') || '', // có thể thay model khác
+        });
+
         let text = res.text || '[]';
         // Remove ```json if AI trả về
         text = text.replace(/```json|```/g, '').trim();
         return JSON.parse(text) as Flashcard[];
-    } catch (err) {
-        console.error("AI response parse error:", err, res.text);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+        if (err.status == 503) {
+            alert('Vui lòng kiểm tra lại api_key hoặc thay đổi model AI!');
+        }
+        if (err.status == 429) {
+            alert('Request quá tải, vui lòng thử lại sau!');
+        }
+        if (err.status == 500) {
+            alert('Lỗi AI!');
+        }
+        if (err.status == 0) {
+            alert('Lỗi mạng!');
+        }
+        if (err.status == 404) {
+            alert('Model không khả dụng!');
+        }
+        if (err.status == 413 || err.status == 504) {
+            alert('Token quá lớn, vui lòng sử dụng token nhỏ hơn!');
+        }
         return [];
     }
 };

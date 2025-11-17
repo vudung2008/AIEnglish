@@ -115,7 +115,8 @@ const Test = () => {
             setSelectedOption(null);
             setScore(0);
         } catch (err) {
-            console.error('Error generating quiz:', err);
+            alert('Không thể tạo bài kiểm tra!');
+            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -205,7 +206,7 @@ const Test = () => {
 
             {quiz.length === 0 && score > 0 && (
                 <div className="mt-4 text-green-700 font-semibold text-lg">
-                    Bạn hoàn thành quiz! Điểm: {score} / {collection?.flashcards.length || quiz.length}
+                    Bạn hoàn thành quiz! Điểm: {score} / {currentIndex + 1}
                 </div>
             )}
 

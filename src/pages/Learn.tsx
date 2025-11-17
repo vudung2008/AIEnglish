@@ -48,7 +48,7 @@ const Learn = () => {
             if (wordsInputRef.current) wordsInputRef.current.value = '';
         } catch (err) {
             console.error(err);
-            alert("Có lỗi xảy ra. Vui lòng thử lại.");
+            // alert("Có lỗi xảy ra. Vui lòng thử lại.");
         }
 
         setLoading(false);
@@ -111,10 +111,10 @@ const Learn = () => {
                         <div className="text-xl font-bold text-blue-600 break-words">{card.key}</div>
                         <div className="italic text-gray-500 text-sm mb-1">{card.pos} | {card.ipa}</div>
                         <p className="mt-2 text-gray-700 text-base leading-relaxed break-words">
-                            <ReactMarkdown>{card.context}</ReactMarkdown>
+                            <span><ReactMarkdown>{card.context}</ReactMarkdown></span>
                         </p>
                         <p className="mt-1 text-gray-500 italic text-sm break-words">
-                            <ReactMarkdown>{card.transContext}</ReactMarkdown>
+                            <span><ReactMarkdown>{card.transContext}</ReactMarkdown></span>
                         </p>
                     </div>
                 ))}

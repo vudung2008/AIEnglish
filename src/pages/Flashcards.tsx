@@ -109,8 +109,8 @@ const Flashcards = () => {
                         style={{ transform: 'rotateY(180deg)' }}
                     >
                         <div className="text-xl font-semibold text-gray-700">{card.mean}</div>
-                        <p className="mt-2 text-gray-600"><ReactMarkdown>{card.context}</ReactMarkdown></p>
-                        <p className="mt-1 text-gray-400 italic"><ReactMarkdown>{card.transContext}</ReactMarkdown></p>
+                        <p className="mt-2 text-gray-600"><span><ReactMarkdown>{card.context}</ReactMarkdown></span></p>
+                        <p className="mt-1 text-gray-400 italic"><span><ReactMarkdown>{card.transContext}</ReactMarkdown></span></p>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { type Collection, getCollections, saveCollection, deleteCollection } from '../lib/collectionHelper';
 
 /**
@@ -13,6 +13,66 @@ const maskKey = (key: string) => {
     const middle = '*'.repeat(key.length - 4);
     return `${start}${middle}${end}`;
 };
+
+const GEMINI_MODELS = [
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+    "gemini-2.0-flash",
+    "gemini-2.0-pro",
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+];
+
+function ModelSelect() {
+    const DEFAULT_MODEL = "gemini-1.5-flash";
+
+    const [model, setModel] = useState(DEFAULT_MODEL);
+
+    useEffect(() => {
+        const saved = localStorage.getItem("gemini:model");
+
+        // Nếu đã có model trong localStorage thì dùng cái đó
+        if (saved) {
+            setModel(saved);
+        } else {
+            // Nếu không có thì lưu giá trị mặc định
+            localStorage.setItem("gemini:model", DEFAULT_MODEL);
+        }
+    }, []);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleChange = (e: any) => {
+        const value = e.target.value;
+        setModel(value);
+        localStorage.setItem("gemini:model", value);
+    };
+
+    return (
+        <div className="flex flex-col gap-2">
+            <label className="text-gray-700 font-medium">Chọn model Gemini:</label>
+
+            <select
+                value={model}
+                onChange={handleChange}
+                className="
+                    px-4 py-3 border border-gray-300 rounded-xl 
+                    bg-gray-50 text-gray-700 shadow-sm 
+                    focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                    hover:bg-gray-100 transition cursor-pointer
+                "
+            >
+                {GEMINI_MODELS.map((m) => (
+                    <option key={m} value={m}>{m}</option>
+                ))}
+            </select>
+
+            <p className="text-sm text-blue-600 mt-1">
+                Model đang chọn: <span className="font-mono">{model}</span>
+            </p>
+        </div>
+    );
+}
+
 
 const Settings = () => {
     // -----------------------
@@ -131,9 +191,13 @@ const Settings = () => {
                 </div>
                 {key && (
                     <p className="mt-4 text-gray-700">
-                        API key hiện tại: <span className="font-mono">{maskKey(key)}</span>
+                        API key hiện tại: <span className="font-mono break-all">{maskKey(key)}</span>
                     </p>
                 )}
+            </div>
+
+            <div className="p-6 border border-gray-200 rounded-xl shadow-md bg-white">
+                <ModelSelect />
             </div>
 
             {/* -----------------------
@@ -179,19 +243,19 @@ const Settings = () => {
                 ) : (
                     <div className="grid md:grid-cols-2 gap-6">
                         {collections.map((col) => (
-                            <div key={col.id} className="border border-gray-300 rounded-xl shadow p-4 flex flex-col gap-2 bg-gray-50">
+                            <div key={col.id} className="border border-gray-300 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1 p-4 flex flex-col gap-2 bg-gray-50">
                                 <div className="flex justify-between items-center">
                                     <h3 className="text-xl font-semibold text-blue-600">{col.name}</h3>
-                                    <div className="flex gap-2">
+                                    <div className="flex flex-col items-end gap-2">
                                         <button
                                             onClick={() => handleExportCollection(col)}
-                                            className="bg-blue-600 text-white px-3 py-1 rounded-xl hover:bg-blue-700 transition"
+                                            className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition shadow-sm"
                                         >
                                             Export
                                         </button>
                                         <button
                                             onClick={() => handleDeleteCollection(col.id)}
-                                            className="bg-red-600 text-white px-3 py-1 rounded-xl hover:bg-red-700 transition"
+                                            className="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition shadow-sm"
                                         >
                                             Delete
                                         </button>
@@ -200,7 +264,7 @@ const Settings = () => {
                                 <p className="text-gray-500 text-sm">{col.flashcards.length} flashcards</p>
 
                                 {/* Hiển thị flashcards */}
-                                {col.flashcards.length > 0 && (
+                                {/* {col.flashcards.length > 0 && (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 border-t border-gray-200 pt-2">
                                         {col.flashcards.map((card, idx) => (
                                             <div
@@ -215,7 +279,7 @@ const Settings = () => {
                                             </div>
                                         ))}
                                     </div>
-                                )}
+                                )} */}
                             </div>
                         ))}
                     </div>
