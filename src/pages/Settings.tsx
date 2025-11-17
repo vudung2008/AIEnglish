@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useRef, useState, useEffect } from 'react';
 import { type Collection, getCollections, saveCollection, deleteCollection } from '../lib/collectionHelper';
+import { testKey } from '../lib/apiClient';
 
 /**
  * Hàm ẩn API key: giữ 2 ký tự đầu và cuối, phần giữa dấu * 
@@ -73,6 +74,64 @@ function ModelSelect() {
     );
 }
 
+interface FlashcardsPopupProps {
+    collection: Collection;
+    onClose: () => void;
+}
+
+const FlashcardsPopup = ({ collection, onClose }: FlashcardsPopupProps) => {
+    return (
+        <>
+            {/* Overlay */}
+            <div
+                className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                onClick={onClose} // click ngoài đóng popup
+            ></div>
+
+            {/* Popup */}
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+                <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[80vh] overflow-y-auto p-6 relative">
+                    {/* Close button */}
+                    <button
+                        onClick={onClose}
+                        className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 font-bold text-lg"
+                    >
+                        ✕
+                    </button>
+
+                    {/* Title */}
+                    <h2 className="text-2xl font-semibold text-blue-600 mb-4">{collection.name}</h2>
+
+                    {/* Flashcards */}
+                    {collection.flashcards.length === 0 ? (
+                        <p className="text-gray-500">Collection này chưa có flashcards.</p>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {collection.flashcards.map((card, idx) => (
+                                <div
+                                    key={idx}
+                                    className="p-4 border border-gray-200 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1"
+                                >
+                                    <h4 className="font-semibold text-blue-600">
+                                        {card.key} - {card.mean}
+                                    </h4>
+                                    {card.ipa && <p className="text-gray-500 text-sm italic">{card.ipa}</p>}
+                                    {card.pos && <p className="text-gray-500 text-sm italic">{card.pos}</p>}
+                                    {card.context && <p className="text-gray-700 text-sm mt-2">{card.context}</p>}
+                                    {card.transContext && (
+                                        <p className="text-gray-400 text-xs italic">{card.transContext}</p>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </>
+    );
+};
+
+
 
 const Settings = () => {
     // -----------------------
@@ -88,15 +147,36 @@ const Settings = () => {
     const [newCollectionName, setNewCollectionName] = useState<string>('');
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const [openPopup, setOpenPopup] = useState(false);
+    const [activeCollection, setActiveCollection] = useState<Collection | null>(null);
+
+    // Khi click show button
+    const handleShowCollection = (col: Collection) => {
+        setActiveCollection(col); // lưu collection hiện tại
+        setOpenPopup(true);       // mở popup
+    };
+
+    // Khi đóng popup
+    const handleClosePopup = () => {
+        setOpenPopup(false);
+        setActiveCollection(null);
+    };
+
     // -----------------------
     // API Key Handlers
     // -----------------------
-    const handleSubmitApiKey = () => {
+    const handleSubmitApiKey = async () => {
         const value = api_key.current?.value;
         if (value) {
-            window.localStorage.setItem('api_key', value);
-            setKey(value);
-            alert('Tạo API key thành công!');
+            const a = await testKey(value);
+            if (a) {
+                window.localStorage.setItem('api_key', value);
+                setKey(value);
+                if (api_key.current) {
+                    api_key.current.value = '';
+                }
+                alert('Tạo API key thành công!');
+            }
         }
     };
 
@@ -241,7 +321,7 @@ const Settings = () => {
                 {collections.length === 0 ? (
                     <p className="text-gray-500">Chưa có collection nào.</p>
                 ) : (
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="grid md:grid-cols-3 gap-6">
                         {collections.map((col) => (
                             <div key={col.id} className="border border-gray-300 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1 p-4 flex flex-col gap-2 bg-gray-50">
                                 <div className="flex justify-between items-center">
@@ -259,6 +339,10 @@ const Settings = () => {
                                         >
                                             Delete
                                         </button>
+                                        <button
+                                            onClick={() => handleShowCollection(col)}
+                                            className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition shadow-sm"
+                                        >Show</button>
                                     </div>
                                 </div>
                                 <p className="text-gray-500 text-sm">{col.flashcards.length} flashcards</p>
@@ -284,6 +368,61 @@ const Settings = () => {
                         ))}
                     </div>
                 )}
+                {openPopup && activeCollection && (
+                    <div
+                        className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50"
+                        onClick={handleClosePopup}
+                    >
+                        <div
+                            className="bg-white border border-gray-200 rounded-xl p-6 w-11/12 max-w-2xl max-h-[80vh] overflow-y-auto relative shadow-2xl animate-popup"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Nút X */}
+                            <button
+                                onClick={handleClosePopup}
+                                className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-lg font-bold"
+                            >
+                                ✕
+                            </button>
+
+                            <h2 className="text-2xl font-bold text-blue-600 mb-4">{activeCollection.name}</h2>
+
+                            {activeCollection.flashcards.length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {activeCollection.flashcards.map((card, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="p-3 border border-gray-200 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1 bg-white"
+                                        >
+                                            <h4 className="font-semibold text-blue-600">{card.key} - {card.mean}</h4>
+                                            <p className="text-gray-700 text-sm">{card.context}</p>
+                                            <p className="text-gray-400 text-xs italic">{card.transContext}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500">Collection này chưa có flashcards.</p>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Thêm style Tailwind custom */}
+                <style>
+                    {`
+@keyframes popupFade {
+  0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-popup {
+  animation: popupFade 0.15s ease-out forwards;
+}
+`}
+                </style>
+
+
+
+
             </div>
         </div>
     );

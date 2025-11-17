@@ -123,3 +123,20 @@ export const getContextAndSave = async (words: string[]): Promise<Flashcard[]> =
         return [];
     }
 };
+
+export const testKey = async (apiKey: string): Promise<boolean> => {
+    try {
+        const genai = new GoogleGenAI({ apiKey });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await genai.models.list();
+        console.log("API key OK!");
+        return true;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+        console.error("API key invalid:", err);
+        if (err.status == 400) {
+            alert('API_KEY không đúng định dạng!');
+        }
+        return false;
+    }
+}

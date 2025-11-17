@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 
 const Home = () => {
@@ -74,6 +73,34 @@ const Home = () => {
                         <h3 className="text-xl font-semibold mb-2">Hỗ trợ AI trực tiếp</h3>
                         <p className="text-gray-600 text-sm">
                             Luyện nói, viết, kiểm tra ngữ pháp với AI ngay trên web, không cần app.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* How to Use Section */}
+            <section className="mt-20 max-w-4xl mx-auto text-center space-y-10">
+                <h2 className="text-3xl font-bold text-blue-600 animate-slideUp">Hướng dẫn sử dụng</h2>
+                <div className="grid md:grid-cols-3 gap-8 animate-fadeIn delay-200">
+                    <div className="p-6 border border-gray-100 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1">
+                        <div className="text-4xl mb-3">1️⃣</div>
+                        <h3 className="text-xl font-semibold mb-2">Chọn từ vựng</h3>
+                        <p className="text-gray-600 text-sm">
+                            Lựa chọn bộ từ vựng bạn muốn học hoặc tạo mới và sử dụng AI đề xuất.
+                        </p>
+                    </div>
+                    <div className="p-6 border border-gray-100 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1">
+                        <div className="text-4xl mb-3">2️⃣</div>
+                        <h3 className="text-xl font-semibold mb-2">Ôn tập và luyện tập</h3>
+                        <p className="text-gray-600 text-sm">
+                            Học từ qua câu ví dụ, flashcards thông minh, kiểm tra thực tế, tích hợp AI.
+                        </p>
+                    </div>
+                    <div className="p-6 border border-gray-100 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1">
+                        <div className="text-4xl mb-3">3️⃣</div>
+                        <h3 className="text-xl font-semibold mb-2">Theo dõi tiến độ</h3>
+                        <p className="text-gray-600 text-sm">
+                            AI sẽ ghi nhận tiến độ học tập, gợi ý từ cần luyện tập nhiều hơn và đánh giá kết quả.
                         </p>
                     </div>
                 </div>
