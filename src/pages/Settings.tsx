@@ -79,60 +79,6 @@ interface FlashcardsPopupProps {
     onClose: () => void;
 }
 
-const FlashcardsPopup = ({ collection, onClose }: FlashcardsPopupProps) => {
-    return (
-        <>
-            {/* Overlay */}
-            <div
-                className="fixed inset-0 bg-black bg-opacity-50 z-40"
-                onClick={onClose} // click ngoài đóng popup
-            ></div>
-
-            {/* Popup */}
-            <div className="fixed inset-0 flex items-center justify-center z-50">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[80vh] overflow-y-auto p-6 relative">
-                    {/* Close button */}
-                    <button
-                        onClick={onClose}
-                        className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 font-bold text-lg"
-                    >
-                        ✕
-                    </button>
-
-                    {/* Title */}
-                    <h2 className="text-2xl font-semibold text-blue-600 mb-4">{collection.name}</h2>
-
-                    {/* Flashcards */}
-                    {collection.flashcards.length === 0 ? (
-                        <p className="text-gray-500">Collection này chưa có flashcards.</p>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {collection.flashcards.map((card, idx) => (
-                                <div
-                                    key={idx}
-                                    className="p-4 border border-gray-200 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1"
-                                >
-                                    <h4 className="font-semibold text-blue-600">
-                                        {card.key} - {card.mean}
-                                    </h4>
-                                    {card.ipa && <p className="text-gray-500 text-sm italic">{card.ipa}</p>}
-                                    {card.pos && <p className="text-gray-500 text-sm italic">{card.pos}</p>}
-                                    {card.context && <p className="text-gray-700 text-sm mt-2">{card.context}</p>}
-                                    {card.transContext && (
-                                        <p className="text-gray-400 text-xs italic">{card.transContext}</p>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
-        </>
-    );
-};
-
-
-
 const Settings = () => {
     // -----------------------
     // API Key State
