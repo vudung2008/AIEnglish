@@ -13,7 +13,7 @@ export default function MainLayout() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-black">
+    <div className="min-h-screen flex flex-col bg-white text-black overflow-x-hidden w-full outline outline-red-500">
 
       {/* NAVBAR */}
       <nav className="w-full border-b border-gray-300 px-6 py-4 flex items-center justify-between bg-white/70 backdrop-blur-md sticky top-0 z-50">
@@ -58,7 +58,7 @@ export default function MainLayout() {
       <div
         className={`
           md:hidden fixed left-0 right-0 top-[64px] 
-          bg-white shadow-lg border-b 
+          bg-white shadow-lg border-b border-gray-300
           transition-all duration-300 z-40
           ${isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"}
         `}
