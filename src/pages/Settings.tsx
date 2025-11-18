@@ -212,7 +212,7 @@ const Settings = () => {
                 </div>
                 {key && (
                     <p className="mt-4 text-gray-700">
-                        API key hiện tại: <span className="text-gray-500 font-mono break-all">{maskKey(key)}</span>
+                        API key hiện tại: <span className="text-gray-500 font-mono break-words whitespace-normal">{maskKey(key)}</span>
                     </p>
                 )}
             </div>
