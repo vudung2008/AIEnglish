@@ -25,7 +25,7 @@ const GEMINI_MODELS = [
 ];
 
 function ModelSelect() {
-    const DEFAULT_MODEL = "gemini-1.5-flash";
+    const DEFAULT_MODEL = "gemini-2.0-flash";
 
     const [model, setModel] = useState(DEFAULT_MODEL);
 
@@ -212,7 +212,7 @@ const Settings = () => {
                 </div>
                 {key && (
                     <p className="mt-4 text-gray-700">
-                        API key hiện tại: <span className="font-mono break-all">{maskKey(key)}</span>
+                        API key hiện tại: <span className="font-mono break-words break-all whitespace-normal">{maskKey(key)}</span>
                     </p>
                 )}
             </div>
