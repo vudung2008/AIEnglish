@@ -9,6 +9,7 @@ export default function MainLayout() {
     { name: "Home", to: "/" },
     { name: "Learn", to: "/learn" },
     { name: "Flashcards", to: "/flashcards" },
+    { name: "Training", to: "/training" },
     { name: "Test", to: "/test" },
     { name: "Settings", to: "/settings" },
   ];

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
     getCollections,
     addFlashcardsToCollection,
@@ -8,6 +8,7 @@ import {
 } from '../lib/collectionHelper';
 import { getContextAndSave } from '../lib/apiClient';
 import ReactMarkdown from 'react-markdown';
+import { useNavigate } from 'react-router-dom';
 
 const Learn = () => {
     const [collections, setCollections] = useState<Collection[]>(getCollections());
@@ -53,6 +54,20 @@ const Learn = () => {
 
         setLoading(false);
     };
+
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (collections.length <= 0) {
+            alert('Vui lòng tạo 1 collection mới!');
+            navigate('/settings');
+            return;
+        }
+        if (!window.localStorage.getItem('api_key')) {
+            alert('Vui lòng nhập api_key!');
+            navigate('/settings');
+            return;
+        }
+    }, [])
 
     return (
         <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">

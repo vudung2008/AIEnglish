@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { getCollections, type Collection } from '../lib/collectionHelper';
 import { generateQuizFromKeys, type QuizQuestion } from '../lib/apiClient';
+import { useNavigate } from 'react-router-dom';
 
 interface TestResult {
     collectionId: string;
@@ -86,7 +87,19 @@ const Test = () => {
 
     const collection = collections.find(c => c.id === selectedCollection);
 
+    const navigate = useNavigate();
+
     useEffect(() => {
+        if (collections.length <= 0) {
+            alert('Vui lòng tạo 1 collection mới!');
+            navigate('/settings');
+            return;
+        }
+        if (!window.localStorage.getItem('api_key')) {
+            alert('Vui lòng nhập api_key!');
+            navigate('/settings');
+            return;
+        }
         const stored = localStorage.getItem('test_history');
         if (stored) setHistory(JSON.parse(stored));
     }, []);

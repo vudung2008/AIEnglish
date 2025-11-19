@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getCollections, type Collection, type Flashcard } from '../lib/collectionHelper';
 import ReactMarkdown from 'react-markdown';
+import { useNavigate } from 'react-router-dom';
 
 const Flashcards = () => {
     const collections = getCollections();
@@ -22,6 +23,20 @@ const Flashcards = () => {
         }
         return a;
     };
+
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (collections.length <= 0) {
+            alert('Vui lòng tạo 1 collection mới!');
+            navigate('/settings');
+            return;
+        }
+        if (!window.localStorage.getItem('api_key')) {
+            alert('Vui lòng nhập api_key!');
+            navigate('/settings');
+            return;
+        }
+    }, [])
 
     useEffect(() => {
         if (selectedCollection) {
