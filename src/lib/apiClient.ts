@@ -87,41 +87,37 @@ export const getContextAndSave = async (words: string[]): Promise<Flashcard[]> =
         transContext: '',
         mean: ''
     };
-    const content = `${JSON.stringify(pattern)}. Write a json array based on these words: [${words.join(",")}]. Each object must contain "key", "ipa" (international phonetic), "pos" (part of speech), "context" (easy sentence using the word), "transContext" (Vietnamese translation), "mean" (Vietnamese meaning). "Key" is in "context" and "transContext" marked down **. Return **strict JSON array** only.`;
+    const content = `${JSON.stringify(pattern)}. For each word in [${words.join(",")}], generate:
+- "key": the English word,
+- "ipa": international phonetic,
+- "pos": part of speech,
+- "context": an easy sentence using the word in English,
+- "transContext: Vietnamese translation of "context", the translation of "key" is in bold
+- "mean": Vietnamese meaning of the word (just the word, not explanation).
+
+Return **strict JSON array** only.`;
 
     try {
         const res = await ai().models.generateContent({
             contents: content,
-            model: localStorage.getItem('gemini:model') || '', // có thể thay model khác
+            model: localStorage.getItem('gemini:model') || '',
         });
 
         let text = res.text || '[]';
-        // Remove ```json if AI trả về
         text = text.replace(/```json|```/g, '').trim();
         return JSON.parse(text) as Flashcard[];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-        if (err.status == 503) {
-            alert('Vui lòng kiểm tra lại api_key hoặc thay đổi model AI!');
-        }
-        if (err.status == 429) {
-            alert('Request quá tải, vui lòng thử lại sau!');
-        }
-        if (err.status == 500) {
-            alert('Lỗi AI!');
-        }
-        if (err.status == 0) {
-            alert('Lỗi mạng!');
-        }
-        if (err.status == 404) {
-            alert('Model không khả dụng!');
-        }
-        if (err.status == 413 || err.status == 504) {
-            alert('Token quá lớn, vui lòng sử dụng token nhỏ hơn!');
-        }
+        if (err.status == 503) alert('Vui lòng kiểm tra lại api_key hoặc thay đổi model AI!');
+        if (err.status == 429) alert('Request quá tải, vui lòng thử lại sau!');
+        if (err.status == 500) alert('Lỗi AI!');
+        if (err.status == 0) alert('Lỗi mạng!');
+        if (err.status == 404) alert('Model không khả dụng!');
+        if (err.status == 413 || err.status == 504) alert('Token quá lớn, vui lòng sử dụng token nhỏ hơn!');
         return [];
     }
 };
+
 
 export const testKey = async (apiKey: string): Promise<boolean> => {
     try {
