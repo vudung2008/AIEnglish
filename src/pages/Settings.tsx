@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useRef, useState, useEffect } from 'react';
-import { type Collection, getCollections, saveCollection, deleteCollection } from '../lib/collectionHelper';
+import { type Collection, getCollections, saveCollection, deleteCollection, deleteCardByIndex } from '../lib/collectionHelper';
 import { testKey } from '../lib/apiClient';
 
 /**
@@ -338,6 +338,19 @@ const Settings = () => {
                                             <h4 className="font-semibold text-blue-600">{card.key} - {card.mean}</h4>
                                             <p className="text-gray-700 text-sm">{card.context}</p>
                                             <p className="text-gray-400 text-xs italic">{card.transContext}</p>
+                                            <button
+                                                className='px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition shadow-sm0'
+                                                onClick={() => {
+                                                    deleteCardByIndex(activeCollection.id, idx);
+                                                    refreshCollections();
+
+                                                    const updated = getCollections().find(c => c.id === activeCollection.id);
+                                                    if (updated) setActiveCollection(updated);
+                                                }}
+                                            >
+                                                Xóa
+                                            </button>
+
                                         </div>
                                     ))}
                                 </div>

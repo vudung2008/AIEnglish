@@ -51,6 +51,17 @@ export const deleteCollection = (id: string) => {
     localStorage.setItem(COLLECTION_KEY, JSON.stringify(collections));
 };
 
+export const deleteCardByIndex = (collectionId: string, index: number) => {
+    const collections = getCollections();
+    const idx = collections.findIndex(c => c.id === collectionId);
+
+    if (idx === -1) return;
+    if (index < 0 || index >= collections[idx].flashcards.length) return;
+
+    collections[idx].flashcards.splice(index, 1);
+    localStorage.setItem(COLLECTION_KEY, JSON.stringify(collections));
+};
+
 // Thêm flashcards vào collection
 export const addFlashcardsToCollection = (id: string, newCards: Flashcard[]) => {
     const collections = getCollections();
